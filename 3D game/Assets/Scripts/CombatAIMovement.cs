@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class AI_Movement_Script : MonoBehaviour
+public class CombatAIMovement : MonoBehaviour
 {
     public Transform point1;
     public Transform point2;
