@@ -9,14 +9,21 @@ public class ThirdPersonMovement : MonoBehaviour
 
     public float speed = 6f;
     public float turnSmoothTime = 0.1f;
+    public float gravityAccel = 10f;
+    public float timeIncrememt = 1f;
+    public float jumpForce = 15f;
     float turnSmoothVelocity;
+    float yVelocity = 0f;
+    float timeNotGrounded = 0f;
 
     // Update is called once per frame
     void Update()
     {
+        #region Rotation Code
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
         Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
+        Vector3 moveDirection = new Vector3(0f, yVelocity, 0f);
 
         if (direction.magnitude >= 0.1f)
         {
@@ -25,8 +32,31 @@ public class ThirdPersonMovement : MonoBehaviour
                 ref turnSmoothVelocity, turnSmoothTime);
             transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
-            Vector3 moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
-            controller.Move(moveDirection.normalized * speed * Time.deltaTime);
+            moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
         }
+
+        #endregion
+
+        if (Input.GetButtonDown("Jump"))
+        {
+            yVelocity = jumpForce;
+        }
+
+        //Vector3 moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
+        //controller.Move(moveDirection.normalized * speed * Time.deltaTime);
+        if (!controller.isGrounded)
+        {
+            yVelocity += -1 * gravityAccel * 3f * Time.deltaTime * timeNotGrounded;
+            timeNotGrounded += timeIncrememt;
+        }
+        else
+        {
+            yVelocity = 0f;
+            timeNotGrounded = 0f;
+        }
+
+        //moveDirection.y = yVelocity;
+        controller.Move(moveDirection.normalized * speed * Time.deltaTime);
+        Debug.Log(yVelocity);
     }
 }
