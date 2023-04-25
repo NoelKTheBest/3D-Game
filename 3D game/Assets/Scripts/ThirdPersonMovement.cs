@@ -16,6 +16,7 @@ public class ThirdPersonMovement : MonoBehaviour
     float yVelocity = 0f;
     float timeNotGrounded = 0f;
 
+    bool isFalling;
     // Update is called once per frame
     void Update()
     {
@@ -41,22 +42,19 @@ public class ThirdPersonMovement : MonoBehaviour
         {
             yVelocity = jumpForce;
         }
-
-        //Vector3 moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
-        //controller.Move(moveDirection.normalized * speed * Time.deltaTime);
-        if (!controller.isGrounded)
+        
+        if (controller.isGrounded)
+        {
+            yVelocity = 0f;
+            timeNotGrounded += 0f;
+        }
+        else
         {
             yVelocity += -1 * gravityAccel * 3f * Time.deltaTime * timeNotGrounded;
             timeNotGrounded += timeIncrememt;
         }
-        else
-        {
-            yVelocity = 0f;
-            timeNotGrounded = 0f;
-        }
 
-        //moveDirection.y = yVelocity;
+        moveDirection.y = yVelocity;
         controller.Move(moveDirection.normalized * speed * Time.deltaTime);
-        Debug.Log(yVelocity);
     }
 }
