@@ -14,7 +14,7 @@ public class ThirdPersonMovement : MonoBehaviour
     public float jumpForce = 15f;
     float turnSmoothVelocity;
     float yVelocity = 0f;
-    float timeNotGrounded = 0f;
+    //float timeNotGrounded = 0f;
 
     bool isFalling;
     // Update is called once per frame
@@ -37,24 +37,24 @@ public class ThirdPersonMovement : MonoBehaviour
         }
 
         #endregion
-
-        if (Input.GetButtonDown("Jump"))
-        {
-            yVelocity = jumpForce;
-        }
         
         if (controller.isGrounded)
         {
             yVelocity = 0f;
-            timeNotGrounded += 0f;
+            //timeNotGrounded += 0f;
+
+            if (Input.GetButtonDown("Jump"))
+            {
+                yVelocity = jumpForce;
+            }
         }
         else
         {
-            yVelocity += -1 * gravityAccel * 3f * Time.deltaTime * timeNotGrounded;
-            timeNotGrounded += timeIncrememt;
+            yVelocity += -1 * gravityAccel * 3f * Time.deltaTime;// * timeNotGrounded;
+            //timeNotGrounded += timeIncrememt;
         }
 
         moveDirection.y = yVelocity;
-        controller.Move(moveDirection.normalized * speed * Time.deltaTime);
+        controller.Move(moveDirection * speed * Time.deltaTime);
     }
 }
