@@ -4,40 +4,45 @@ using UnityEngine;
 
 public class DetectObjects : MonoBehaviour
 {
-    public string detectedObject;
+    public string detectedObjectType;
+    public GameObject detectedGameObject;
     
     private void OnTriggerEnter(Collider other)
     {
+        detectedGameObject = other.gameObject;
+
         if (other.gameObject.tag == "Enemy")
         {
-            detectedObject = "Enemy";
+            detectedObjectType = "Enemy";
         }
         else if (other.gameObject.tag == "Item")
         {
             //In case we add items
-            detectedObject = "Item";
+            detectedObjectType = "Item";
         }
         else
         {
             //For any unrecognized or irrelevant object
-            detectedObject = "None";
+            detectedObjectType = "None";
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
+        detectedGameObject = null;
+
         if (other.gameObject.tag == "Enemy")
         {
-            detectedObject = "None";
+            detectedObjectType = "None";
         }
         else if (other.gameObject.tag == "Item")
         {
-            detectedObject = "None";
+            detectedObjectType = "None";
         }
         else
         {
             //For any unrecognized or irrelevant object
-            detectedObject = "None";
+            detectedObjectType = "None";
         }
     }
 }

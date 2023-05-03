@@ -5,22 +5,28 @@ using UnityEngine;
 public class OverworldPlayer : MonoBehaviour
 {
     private DetectObjects obj;
-    
+    //private BattleSystem bs;
+
+    public OverworldStatus overworld;
+
     void Awake()
     {
         obj = GetComponentInChildren<DetectObjects>();
-        Debug.Log(obj);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (obj.detectedObject == "Enemy")
+        if (obj.detectedObjectType == "Enemy")
         {
-            Debug.Log("let's go!");
             if (Input.GetButtonDown("Engage"))
             {
-                Debug.Log("ATTACK!!");
+                //overworld.OnBattleStart.AddListener(obj.detectedGameObject.GetComponent<OverworldEnemy>().UseEmptyUnit); - Too slow
+                OverworldEnemy enemy = obj.detectedGameObject.GetComponent<OverworldEnemy>();
+
+                if (enemy.dead) return;
+
+                enemy.UseEmptyUnit();
                 StartBattle();
             }
         }
@@ -31,8 +37,8 @@ public class OverworldPlayer : MonoBehaviour
         OverworldStatus.battleInProgress = true;
     }
 
-    void BattleEnded()
+    public void BattleEnded()
     {
-        OverworldStatus.battleInProgress = false;
+        obj.detectedGameObject.GetComponent<OverworldEnemy>().UpdateMyUnit();
     }
 }
