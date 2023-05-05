@@ -14,47 +14,69 @@ public class ThirdPersonMovement : MonoBehaviour
     public float jumpForce = 15f;
     float turnSmoothVelocity;
     float yVelocity = 0f;
-    //float timeNotGrounded = 0f;
 
-    bool isFalling;
+    bool isFalling = false;
+
     // Update is called once per frame
     void Update()
     {
-        #region Rotation Code
-        float horizontal = Input.GetAxisRaw("Horizontal");
-        float vertical = Input.GetAxisRaw("Vertical");
-        Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
-        Vector3 moveDirection = new Vector3(0f, yVelocity, 0f);
-
-        if (direction.magnitude >= 0.1f)
+        if (!OverworldStatus.battleInProgress)
         {
-            float targetAngle = Mathf.Atan2(direction.x, direction.z)* Mathf.Rad2Deg + cam.eulerAngles.y;
-            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle,
-                ref turnSmoothVelocity, turnSmoothTime);
-            transform.rotation = Quaternion.Euler(0f, angle, 0f);
+            #region Rotation Code
+            float horizontal = Input.GetAxisRaw("Horizontal");
+            float vertical = Input.GetAxisRaw("Vertical");
+            Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
+            Vector3 moveDirection = new Vector3(0f, yVelocity, 0f);
 
-            moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
-        }
-
-        #endregion
-        
-        if (controller.isGrounded)
-        {
-            yVelocity = 0f;
-            //timeNotGrounded += 0f;
-
-            if (Input.GetButtonDown("Jump"))
+            if (direction.magnitude >= 0.1f)
             {
-                yVelocity = jumpForce;
-            }
-        }
-        else
-        {
-            yVelocity += -1 * gravityAccel * 3f * Time.deltaTime;// * timeNotGrounded;
-            //timeNotGrounded += timeIncrememt;
-        }
+                float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
+                float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle,
+                    ref turnSmoothVelocity, turnSmoothTime);
+                transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
-        moveDirection.y = yVelocity;
-        controller.Move(moveDirection * speed * Time.deltaTime);
+                moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
+            }
+            #endregion
+
+            #region Jump and Gravity Code
+            if (controller.isGrounded)
+            {
+                isFalling = false;
+                //Debug.Log("Grounded velocity:" + yVelocity);
+
+                yVelocity = 0f;
+
+                //Debug.Log("Forced Grounded velocity:" + yVelocity);
+
+                if (Input.GetButtonDown("Jump"))
+                {
+                    yVelocity = jumpForce;
+                    isFalling = true;
+                }
+            }
+            else
+            {
+                yVelocity += -1 * gravityAccel * 3f * Time.deltaTime;
+
+                //Debug.Log("Airborne velocity:" + yVelocity);
+
+                /* Because CharacterController can't seem to tell when it's on the ground vs when it's airborne
+                 *  I've made it so that when the program chooses the else block, the player still is able to jump.
+                 *  I'm checking for VERY low velocity as that indicates that the model is barely moving if at all.
+                 *  I also have a boolean variable to make sure that you can't spam into a double jump.
+                 *      The conditions that allow for jumping in this code block also appear at the height of the jump.
+                 */
+                if (yVelocity > -1f && yVelocity < 1f && !isFalling && Input.GetButtonDown("Jump"))
+                {
+                    yVelocity = jumpForce;
+                    isFalling = true;
+                }
+            }
+
+            moveDirection.y = yVelocity;
+            controller.Move(moveDirection * speed * Time.deltaTime);
+            #endregion
+        }
     }
 }
