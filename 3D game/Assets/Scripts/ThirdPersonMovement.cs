@@ -5,12 +5,12 @@ using UnityEngine;
 public class ThirdPersonMovement : MonoBehaviour
 {
     public CharacterController controller;
+    public Animator anim;
     public Transform cam;
 
     public float speed = 6f;
     public float turnSmoothTime = 0.1f;
     public float gravityAccel = 10f;
-    public float timeIncrememt = 1f;
     public float jumpForce = 15f;
     float turnSmoothVelocity;
     float yVelocity = 0f;
@@ -52,6 +52,7 @@ public class ThirdPersonMovement : MonoBehaviour
                 if (Input.GetButtonDown("Jump"))
                 {
                     yVelocity = jumpForce;
+                    anim.SetTrigger("Jump");
                     isFalling = true;
                 }
             }
@@ -70,12 +71,26 @@ public class ThirdPersonMovement : MonoBehaviour
                 if (yVelocity > -1f && yVelocity < 1f && !isFalling && Input.GetButtonDown("Jump"))
                 {
                     yVelocity = jumpForce;
+                    anim.SetTrigger("Jump");
                     isFalling = true;
                 }
             }
 
             moveDirection.y = yVelocity;
             controller.Move(moveDirection * speed * Time.deltaTime);
+            #endregion
+
+            #region Movement Animation
+            //Debug.Log(moveDirection);
+
+            if (moveDirection.x != 0f || moveDirection.z != 0f)
+            {
+                anim.SetBool("isRunning", true);
+            }
+            else if (moveDirection.x == 0f && moveDirection.z == 0f)
+            {
+                anim.SetBool("isRunning", false);
+            }
             #endregion
         }
     }

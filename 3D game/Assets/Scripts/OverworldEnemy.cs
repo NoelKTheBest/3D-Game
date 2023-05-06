@@ -8,6 +8,7 @@ public class OverworldEnemy : MonoBehaviour
     private Unit myUnit;
 
     public bool dead;
+    public Animator anim;
 
     void Awake()
     {
@@ -16,6 +17,14 @@ public class OverworldEnemy : MonoBehaviour
         myUnit = GetComponent<Unit>();
     }
     
+    void Update()
+    {
+        if (dead)
+        {
+            anim.SetBool("isDead", true);
+        }
+    }
+
     public void UseEmptyUnit()
     {
         emptyUnit.SetUnit(myUnit);
