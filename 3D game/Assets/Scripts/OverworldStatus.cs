@@ -13,8 +13,24 @@ public class OverworldStatus : MonoBehaviour
     public UnityEvent OnBattleStart;
     public UnityEvent OnBattleEnd;
     public CinemachineFreeLook cinemaCam;
+    public GameObject boss;
+
+    public OverworldEnemy[] enemies;
+
+    int deathCount = 0;
+    int enemyCount;
 
     bool hasBeenCalled = false;
+
+    void Awake()
+    {
+        enemyCount = GameObject.FindGameObjectsWithTag("Enemy").Length;
+    }
+
+    void Start()
+    {
+        //boss.SetActive(false);
+    }
 
     void Update()
     {
@@ -35,6 +51,16 @@ public class OverworldStatus : MonoBehaviour
 
         if (battleInProgress)
         {
+        }
+
+        for (int i = 0; i < enemies.Length; i++)
+        {
+            if (enemies[i].dead) deathCount++;
+        }
+
+        if (deathCount == enemyCount)
+        {
+            boss.SetActive(true);
         }
     }
 

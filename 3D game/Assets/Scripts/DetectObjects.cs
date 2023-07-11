@@ -6,10 +6,13 @@ public class DetectObjects : MonoBehaviour
 {
     public string detectedObjectType;
     public GameObject detectedGameObject;
+    public OverworldEnemy enemy;
     
     private void OnTriggerEnter(Collider other)
     {
         detectedGameObject = other.gameObject;
+        //enemy = detectedGameObject.GetComponent<OverworldEnemy>();
+        //enemy.isPlayerNearMe = true;
 
         if (other.gameObject.tag == "Enemy")
         {
@@ -29,6 +32,7 @@ public class DetectObjects : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
+        //enemy.isPlayerNearMe = false;
         detectedGameObject = null;
 
         if (other.gameObject.tag == "Enemy")

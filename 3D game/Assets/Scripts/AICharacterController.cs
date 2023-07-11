@@ -6,6 +6,7 @@ public class AICharacterController : MonoBehaviour
 {
     public CharacterController controller;
     public Animator anim;
+    public OverworldEnemy myStatus;
 
     public float speed = 6f;
     public float turnSmoothTime = 0.1f;
@@ -21,6 +22,11 @@ public class AICharacterController : MonoBehaviour
     public float timeTillNextDirection;
     float timer;
 
+    void Start()
+    {
+        timer = timeTillNextDirection;
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -33,7 +39,7 @@ public class AICharacterController : MonoBehaviour
                 zDirection = Random.Range(-1f, 1f);
                 timer -= Time.deltaTime;
             }
-            else if (timer < timeTillNextDirection)
+            else if (timer < timeTillNextDirection && timer > 0)
             {
                 timer -= Time.deltaTime;
             }
@@ -41,9 +47,7 @@ public class AICharacterController : MonoBehaviour
             {
                 timer = timeTillNextDirection;
             }
-
-            Debug.Log(timer);
-
+            
             Vector3 direction = new Vector3(xDirection, 0f, zDirection).normalized;
             Vector3 moveDirection = new Vector3(0f, yVelocity, 0f);
 
@@ -87,7 +91,14 @@ public class AICharacterController : MonoBehaviour
             }
 
             moveDirection.y = yVelocity;
-            controller.Move(moveDirection * speed * Time.deltaTime);
+            if (!myStatus.isPlayerNearMe)
+            {
+                controller.Move(moveDirection * speed * Time.deltaTime);
+            }
+            else
+            {
+                transform.LookAt(myStatus.playerTransform);
+            }
             #endregion
 
             #region Movement Animation

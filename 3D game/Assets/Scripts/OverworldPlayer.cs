@@ -21,11 +21,14 @@ public class OverworldPlayer : MonoBehaviour
         {
             if (Input.GetButtonDown("Engage"))
             {
+                Debug.Log("1");
                 //overworld.OnBattleStart.AddListener(obj.detectedGameObject.GetComponent<OverworldEnemy>().UseEmptyUnit); - Too slow
                 OverworldEnemy enemy = obj.detectedGameObject.GetComponent<OverworldEnemy>();
 
                 if (enemy.dead) return;
 
+
+                Debug.Log("2");
                 enemy.UseEmptyUnit();
                 StartBattle();
             }

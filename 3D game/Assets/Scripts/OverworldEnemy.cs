@@ -9,6 +9,13 @@ public class OverworldEnemy : MonoBehaviour
 
     public bool dead;
     public Animator anim;
+    public bool isPlayerNearMe;
+    public Transform playerTransform;
+    public float detectionDistanceX;
+    public float detectionDistanceZ;
+
+    bool inRangeX;
+    bool inRangeZ;
 
     void Awake()
     {
@@ -23,6 +30,28 @@ public class OverworldEnemy : MonoBehaviour
         {
             anim.SetBool("isDead", true);
         }
+
+        if (Mathf.Abs(playerTransform.position.x - transform.position.x) <= detectionDistanceX)
+        {
+            inRangeX = true;
+        }
+        else if (Mathf.Abs(playerTransform.position.x - transform.position.x) > detectionDistanceX)
+        {
+            inRangeX = false;
+        }
+
+        if (Mathf.Abs(playerTransform.position.z - transform.position.z) <= detectionDistanceZ)
+        {
+            inRangeZ = true;
+        }
+        else if (Mathf.Abs(playerTransform.position.z - transform.position.z) > detectionDistanceZ)
+        {
+            inRangeZ = false;
+        }
+
+        //if (Mathf.Abs(playerTransform.position.z - transform.position.z) <= detectionDistanceZ) inRangeZ = true;
+        if (inRangeX && inRangeZ) isPlayerNearMe = true;//Debug.Log("in range");
+        if (!inRangeX && !inRangeZ) isPlayerNearMe = false;// Debug.Log("out of range");
     }
 
     public void UseEmptyUnit()
@@ -37,6 +66,7 @@ public class OverworldEnemy : MonoBehaviour
         if (myUnit.currentHP <= 0)
         {
             dead = true;
+            gameObject.SetActive(false);
         }
     }
 }

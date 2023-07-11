@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public enum BattleState {NOBATTLE, START, PLAYERTURN, ENEMYTURN, WON, LOST }
@@ -13,6 +14,23 @@ public class BattleSystem : MonoBehaviour
      */
     Unit playerUnit;
     Unit enemyUnit;
+
+    #region Image References
+    public GameObject playerIdle;
+    public GameObject playerAttack;
+    public GameObject playerHurt;
+    public GameObject playerDie;
+
+    public GameObject enemy1Idle;
+    public GameObject enemy1Attack;
+    public GameObject enemy1Hurt;
+    public GameObject enemy1Die;
+
+    public GameObject enemy2Idle;
+    public GameObject enemy2Attack;
+    public GameObject enemy2Hurt;
+    public GameObject enemy2Die;
+    #endregion
 
     public TMP_Text dialogText;
 
@@ -38,6 +56,21 @@ public class BattleSystem : MonoBehaviour
     void Start()
     {
         state = BattleState.NOBATTLE;
+
+        playerIdle.SetActive(false);
+        playerAttack.SetActive(false);
+        playerHurt.SetActive(false);
+        playerDie.SetActive(false);
+
+        enemy1Idle.SetActive(false);
+        enemy1Attack.SetActive(false);
+        enemy1Hurt.SetActive(false);
+        enemy1Die.SetActive(false);
+
+        enemy2Idle.SetActive(false);
+        enemy2Attack.SetActive(false);
+        enemy2Hurt.SetActive(false);
+        enemy2Die.SetActive(false);
     }
 
     void Update()
@@ -59,7 +92,7 @@ public class BattleSystem : MonoBehaviour
         {
             turnNumber = 0;
         }
-
+        
         //Debug.Log(turnNumber);
     }
 
@@ -74,13 +107,24 @@ public class BattleSystem : MonoBehaviour
     {
         state = BattleState.START; //might try and set this another way later on
 
-        dialogText.text = "A wild " + enemyUnit.unitName + " wants to start some shit."; //" approaches.";
+        dialogText.text = "A wild " + enemyUnit.unitName + " wants to party."; //" approaches.";
 
         playerHUD.SetHUD(playerUnit);
         enemyHUD.SetHUD(enemyUnit);
+        
+        playerIdle.SetActive(true);
+
+        if (enemyUnit.unitName == "Kruumpa")
+        {
+            enemy1Idle.SetActive(true);
+        }
+        else if (enemyUnit.unitName == "Grumer" || enemyUnit.unitName == "Grumlord")
+        {
+            enemy2Idle.SetActive(true);
+        }
 
         yield return new WaitForSeconds(2f);
-
+        
         state = BattleState.PLAYERTURN;
         PlayerTurn();
     }
@@ -94,11 +138,24 @@ public class BattleSystem : MonoBehaviour
         if (state == BattleState.WON)
         {
             dialogText.text = "You cheated...";
+            if (playerUnit.currentHP + 10 < playerUnit.maxHP) playerUnit.currentHP += 10;
+            if (playerUnit.currentHP + 10 > playerUnit.maxHP) playerUnit.currentHP = playerUnit.maxHP;
         }
         else if (state == BattleState.LOST)
         {
-            dialogText.text = "You suck, fuck outta here bruh";
+            dialogText.text = "BANNED";
         }
+
+        if (enemyUnit.unitName == "Kruumpa")
+        {
+            enemy1Die.SetActive(false);
+        }
+        else if (enemyUnit.unitName == "Grumer" || enemyUnit.unitName == "Grumlord")
+        {
+            enemy2Die.SetActive(false);
+        }
+
+        hasBeenCalled = false;
 
         yield return new WaitForSeconds(1f);
 
@@ -120,29 +177,80 @@ public class BattleSystem : MonoBehaviour
         //if (state != BattleState.PLAYERTURN && !hasBeenCalled) return;
         hasBeenCalled = true;
 
+        playerIdle.SetActive(false);
+        playerAttack.SetActive(true);
         StartCoroutine(PlayerAttack());
     }
 
     IEnumerator PlayerAttack()
     {
         bool isDead = enemyUnit.TakeDamage(playerUnit.damage);
-        
-        enemyHUD.SetHP(enemyUnit.currentHP);
-        dialogText.text = "It wasn't very effective, dipshit...";
 
-        yield return new WaitForSeconds(2f);
+        if (enemyUnit.unitName == "Kruumpa")
+        {
+            enemy1Idle.SetActive(false);
+            enemy1Hurt.SetActive(true);
+        }
+        else if (enemyUnit.unitName == "Grumer" || enemyUnit.unitName == "Grumlord")
+        {
+            enemy2Idle.SetActive(false);
+            enemy2Hurt.SetActive(true);
+        }
+
+        enemyHUD.SetHP(enemyUnit.currentHP);
+        dialogText.text = "You attack!";
+
+        yield return new WaitForSeconds(1f);
 
         if (isDead)
         {
+            if (enemyUnit.unitName == "Kruumpa")
+            {
+                enemy1Hurt.SetActive(false);
+                enemy1Die.SetActive(true);
+            }
+            else if (enemyUnit.unitName == "Grumer" || enemyUnit.unitName == "Grumlord")
+            {
+                enemy2Hurt.SetActive(false);
+                enemy2Die.SetActive(true);
+            }
+
             state = BattleState.WON;
             StartCoroutine(EndBattle());
         }
         else
         {
+            if (enemyUnit.unitName == "Kruumpa")
+            {
+                enemy1Hurt.SetActive(false);
+                enemy1Idle.SetActive(true);
+            }
+            else if (enemyUnit.unitName == "Grumer" || enemyUnit.unitName == "Grumlord")
+            {
+                enemy2Hurt.SetActive(false);
+                enemy2Idle.SetActive(true);
+            }
+            
+            yield return new WaitForSeconds(1f);
+
             state = BattleState.ENEMYTURN;
             hasBeenCalled = false;
+
+            if (enemyUnit.unitName == "Kruumpa")
+            {
+                enemy1Idle.SetActive(false);
+                enemy1Attack.SetActive(true);
+            }
+            else if (enemyUnit.unitName == "Grumer" || enemyUnit.unitName == "Grumlord")
+            {
+                enemy2Idle.SetActive(false);
+                enemy2Attack.SetActive(true);
+            }
             StartCoroutine(EnemyTurn());
         }
+
+        playerAttack.SetActive(false);
+        //playerIdle.SetActive(true);
     }
 
     public void OnRunButton()
@@ -172,7 +280,10 @@ public class BattleSystem : MonoBehaviour
     {
         dialogText.text = enemyUnit.unitName + " attacks!";
 
-        yield return new WaitForSeconds(0.5f);
+        playerIdle.SetActive(false);
+        playerHurt.SetActive(true);
+
+        yield return new WaitForSeconds(1f);
 
         bool isDead = playerUnit.TakeDamage(enemyUnit.damage);
         
@@ -182,14 +293,31 @@ public class BattleSystem : MonoBehaviour
 
         if (isDead)
         {
+            playerHurt.SetActive(false);
+            playerDie.SetActive(true);
+
             state = BattleState.LOST;
             StartCoroutine(EndBattle());
         }
         else
         {
+            playerHurt.SetActive(false);
+            playerIdle.SetActive(true);
+
             state = BattleState.PLAYERTURN;
             turnNumber++;
             PlayerTurn();
+        }
+
+        if (enemyUnit.unitName == "Kruumpa")
+        {
+            enemy1Attack.SetActive(false);
+            enemy1Idle.SetActive(true);
+        }
+        else if (enemyUnit.unitName == "Grumer" || enemyUnit.unitName == "Grumlord")
+        {
+            enemy2Attack.SetActive(false);
+            enemy2Idle.SetActive(true);
         }
     }
 
